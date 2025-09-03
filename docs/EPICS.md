@@ -1,6 +1,27 @@
-# EPICS – Scraper Productization
+# EPICS – Scraper Productization (CE Style + TDD)
 
-This document captures product epics and acceptance criteria for evolving Scraper into a polished, local‑first desktop product. All epics assume offline/localhost execution, deterministic heuristics, and privacy by default.
+This document captures product epics and acceptance criteria for evolving Scraper into a polished, local‑first desktop product in the AI‑OS‑CE style: community‑friendly, local‑first, transparent heuristics, and TDD‑gated delivery.
+
+Principles (CE)
+- Local‑first and privacy‑by‑default; no secrets, no cloud dependencies
+- Deterministic heuristics and explainability (teach logs map to docs)
+- Documentation‑as‑product: onboarding lives in the repo and UI
+- TDD as a gate: every epic has acceptance tests (unit + e2e) enforced by CI
+- Simple, composable CLIs with idempotent importers/exporters
+
+Testing strategy and gates (TDD)
+- Unit tests
+  - Algorithms: SimHash/Hamming thresholds; Levenshtein filters; TF‑IDF uniqueness
+  - Validators: quiz minimal schema; manifest integrity; category mapping
+  - CLI: flag wiring (--teach, --preview, --strict), param validation
+- E2E tests (network‑free)
+  - Mock harvest inputs to produce deterministic quiz+research outputs
+  - Run `scraper ship local` over a temp sandbox
+  - Verify: manifest totals, quiz schema, research files created, HTML report shows previews and gate summary
+- CI gates (GitHub Actions)
+  - Run unit + e2e suites; coverage threshold (initial 70%)
+  - No external network calls; use mocks/fixtures
+  - PRs must pass CI to merge
 
 
 Epic 1 — One‑shot Ship UX (MVP)
@@ -13,6 +34,7 @@ Epic 1 — One‑shot Ship UX (MVP)
 - Done when
   - A single command produces artifacts in out/ and reports/ with no manual steps
   - A new editor can understand “what shipped” from HTML and logs
+  - Acceptance tests pass in CI: unit (CLI wiring), e2e (ship over sandbox with previews)
 
 
 Epic 2 — Strict Gates (fail‑fast)
@@ -24,6 +46,7 @@ Epic 2 — Strict Gates (fail‑fast)
   - Gate summary in HTML report
 - Done when
   - Intentionally corrupting a quiz file stops ship with clear reasons
+  - Acceptance tests pass in CI: unit (validators), e2e (ship fails with clear gate reasons)
 
 
 Epic 3 — Dedupe Report & Teaching Aids
@@ -34,6 +57,7 @@ Epic 3 — Dedupe Report & Teaching Aids
   - Configurable thresholds (Levenshtein ratio, TF‑IDF cosine, SimHash Hamming)
 - Done when
   - A reviewer can justify why a question was skipped and tweak thresholds to change outcomes
+  - Acceptance tests pass in CI: unit (SimHash/ratio thresholds), e2e (report includes dedupe section with samples)
 
 
 Epic 4 — Learning Center (Docs-in-App)
@@ -44,6 +68,7 @@ Epic 4 — Learning Center (Docs-in-App)
   - Link from teach logs to sections (deep links)
 - Done when
   - A new user can become productive without leaving the app
+  - Acceptance tests pass in CI: unit (doc anchors map), e2e (teach logs link to docs in report or UI)
 
 
 Epic 5 — Tauri Frontend (Desktop)
@@ -58,6 +83,7 @@ Epic 5 — Tauri Frontend (Desktop)
   - Dark/light mode; keyboard shortcuts
 - Done when
   - A user can run ship from the GUI and view the report without a terminal
+  - Acceptance tests pass (separate UI CI later); headless smoke can invoke CLI and capture logs
 
 
 Epic 6 — Packaging & Distribution
@@ -68,6 +94,7 @@ Epic 6 — Packaging & Distribution
   - Versioned changelog + release notes
 - Done when
   - A “Download app” + “Open” flow runs a sample ship on a demo project
+  - Release pipeline publishes artifacts after tests pass; checksums attached
 
 
 Epic 7 — Extensibility & Integrations (post‑MVP)
@@ -81,11 +108,22 @@ Epic 7 — Extensibility & Integrations (post‑MVP)
 
 
 Roadmap Phases
-- Phase 0 (now): Teach/Preview + HTML report previews + docs
-- Phase 1 (MVP): Strict gates, dedupe report, Learning Center docs
-- Phase 2 (GUI): Tauri frontend invoking CLI, report rendering, settings
-- Phase 3 (Polish): Packaging, app signing, sample project, tutorials
+- Phase 0 (now): Teach/Preview + HTML report previews + docs (unit tests seed)
+- Phase 1 (MVP): Strict gates, dedupe report, Learning Center docs (unit + e2e gates)
+- Phase 2 (GUI): Tauri frontend invoking CLI, report rendering, settings (separate UI repo CI)
+- Phase 3 (Polish): Packaging, app signing, sample project, tutorials (release CI)
 - Phase 4 (Extend): New adapters, optional enhancers, community contributions
+
+Issue taxonomy (labels)
+- epic, task, bug, chore, docs, CE, TDD
+- domains: ship, harvest, export, import, research, quizmentor, ui, tauri
+- testing: test:unit, test:e2e, strict-gates, teach, preview
+
+References
+- CI workflow: .github/workflows/ci.yml
+- Tests root: /tests
+- README (teach/preview quickstart): ../README.md
+- Tauri UI proposal: ./TAURI.md
 
 
 Non‑Goals (for now)
