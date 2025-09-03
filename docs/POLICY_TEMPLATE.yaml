@@ -1,0 +1,75 @@
+# Default policy template for Scraper CE
+# Copy to policy.yaml and customize per project.
+
+meta:
+  version: 1
+  project: "example"
+  contact_email: "owner@example.com"
+
+robots_tos:
+  honor_robots: true
+  rate_limit:
+    requests_per_minute: 30
+    burst: 10
+  tos_snapshot: true  # record ToS URL + hash + timestamp
+
+allowlists:
+  domains: ["docs.aws.amazon.com", "kubernetes.io", "developer.mozilla.org"]
+  paths: []
+  topics: []
+
+denylists:
+  domains: []
+  paths: ["/private", "/account"]
+  topics: []
+
+licenses:
+  compatibility_matrix:
+    quiz:
+      allowed: ["MIT", "Apache-2.0", "BSD-3-Clause", "CC-BY-4.0"]
+      warn: ["CC-BY-NC-4.0"]
+      block: ["Proprietary", "All Rights Reserved", "Unknown"]
+    research:
+      allowed: ["MIT", "Apache-2.0", "BSD-3-Clause", "CC-BY-4.0", "CC-BY-SA-4.0"]
+      warn: ["CC-BY-NC-4.0"]
+      block: ["Proprietary", "All Rights Reserved", "Unknown"]
+  require_attribution: true
+
+pii:
+  enable: true
+  detectors:
+    - name: email
+      type: regex
+      pattern: "[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}"
+    - name: phone
+      type: regex
+      pattern: "\b\+?[0-9][0-9\-\s]{6,}[0-9]\b"
+    - name: secret_key
+      type: entropy
+      min_length: 20
+      entropy_bits: 3.5
+  action:
+    normal: redact
+    strict: block
+
+quotes:
+  max_chars: 240
+  max_percent_reproduced: 0.15
+  bias_toward_summary: true
+
+unsafe_content:
+  flag_code_execution: true
+
+jurisdiction:
+  gdpr_purge: true
+  ccpa_purge: true
+
+strict_behaviors:
+  unknown_license: block
+  incompatible_license: block
+  robots_disallow: block
+
+remediation:
+  default: redact
+  alternatives: ["redact", "exclude", "flag"]
+

@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Set
 
 from rich.console import Console
 from rich.markdown import Markdown
@@ -38,7 +38,8 @@ class ShipLocalOrchestrator:
             mode: str = "copy",
             strict: bool = False,
             limit: int | None = None,
-            , teach: bool = False
+            teach: bool = False,
+            preview: bool = False,
             ) -> Dict[str, Any]:
         ctx: Dict[str, Any] = {"steps": [], "warnings": []}
 
@@ -130,6 +131,39 @@ class ShipLocalOrchestrator:
         rres = rimp.run()
         self.console.print(f"Created={rres.get('created',0)} Skipped={rres.get('skipped',0)} in {rres.get('repo')}")
 
+        # Optional previews
+        previews_quiz: List[Dict[str, Any]] = []
+        previews_research: List[Dict[str, Any]] = []
+        if preview:
+            # Quiz previews: 2 questions per category
+            for fi in files_info:
+                try:
+                    data = json.loads(Path(fi["file"]).read_text())
+                    qs = data.get("questions", [])
+                    q1 = qs[0].get("question") if len(qs) > 0 else ""
+                    q2 = qs[1].get("question") if len(qs) > 1 else ""
+                    previews_quiz.append({"category": Path(fi["file"]).stem.replace("quiz_",""), "q1": q1, "q2": q2})
+                except Exception:
+                    continue
+            # Research previews: first bullet from each new summary
+            for it in rres.get("items", [])[:10]:
+                try:
+                    lines = Path(it["file"]).read_text().splitlines()
+                    first_bullet = ""
+                    in_summary = False
+                    for ln in lines:
+                        if ln.strip() == "summary:":
+                            in_summary = True
+                            continue
+                        if in_summary and ln.strip().startswith("-"):
+                            first_bullet = ln.strip()[1:].strip()
+                            break
+                        if in_summary and ln.strip() == "":
+                            break
+                    previews_research.append({"slug": it.get("slug"), "first_bullet": first_bullet})
+                except Exception:
+                    continue
+
         # 7) HTML report
         self._log_step("HTML report")
         quizzes_for_report = []
@@ -167,6 +201,9 @@ class ShipLocalOrchestrator:
             "research": research_for_report,
             "warnings": ctx.get("warnings", []),
             "params": params,
+            "previews_quiz": previews_quiz,
+            "previews_research": previews_research,
+            "legal": ctx.get("legal", {}),
         })
         self.console.print(f"[green]Report:[/green] {report_path}")
 

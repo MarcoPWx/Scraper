@@ -12,8 +12,11 @@ def write_ship_report(path: str, context: Dict[str, Any]) -> Path:
     totals = context.get("totals", {})
     quizzes = context.get("quizzes", [])
     research = context.get("research", [])
+    previews_quiz = context.get("previews_quiz", [])
+    previews_research = context.get("previews_research", [])
     warnings = context.get("warnings", [])
     params = context.get("params", {})
+    legal = context.get("legal", {})
 
     def esc(s: str) -> str:
         return (
@@ -32,6 +35,15 @@ def write_ship_report(path: str, context: Dict[str, Any]) -> Path:
         for r in research
     )
     warn_list = "".join(f"<li>{esc(json.dumps(w))}</li>" for w in warnings)
+    preview_quiz_list = "".join(
+        f"<li><b>{esc(p.get('category',''))}</b>: {esc(p.get('q1',''))} | {esc(p.get('q2',''))}</li>" for p in previews_quiz
+    )
+    preview_research_list = "".join(
+        f"<li><b>{esc(p.get('slug',''))}</b>: {esc(p.get('first_bullet',''))}</li>" for p in previews_research
+    )
+    legal_rows = "".join(
+        f"<tr><td>{esc(k)}</td><td>{esc(str(v))}</td></tr>" for k, v in legal.items()
+    )
 
     html = f"""<!doctype html>
 <html>
@@ -82,6 +94,25 @@ code {{ background: #f7f7f7; padding: 1px 4px; border-radius: 4px; }}
 <div class=\"card\">
   <h2>Warnings</h2>
   <ul>{warn_list or '<li>None</li>'}</ul>
+</div>
+
+<div class=\"card\">
+  <h2>Previews (Quiz)</h2>
+  <ul>{preview_quiz_list or '<li>None</li>'}</ul>
+</div>
+
+<div class=\"card\">
+  <h2>Previews (Research)</h2>
+  <ul>{preview_research_list or '<li>None</li>'}</ul>
+</div>
+
+<div class=\"card\">
+  <h2>Legal Summary</h2>
+  <table>
+    <thead><tr><th>Gate</th><th>Status/Counts</th></tr></thead>
+    <tbody>{legal_rows or '<tr><td colspan=2><i>No legal data</i></td></tr>'}</tbody>
+  </table>
+  <p style=\"font-size: 12px; color: #888\">See Legal Guardrails doc and policy.yaml for configuration. [teach §Legal]</p>
 </div>
 
 </body>

@@ -65,3 +65,71 @@ Future (deferred)
 Notes
 - All new behavior is documented in README with examples and ASCII flows
 - Keep imports idempotent; add --update-existing later only when there’s a reviewer workflow
+
+---
+
+Date: 2025-09-03 (Teach + Preview upgrade)
+
+What changed
+- Ship command: added --teach and --preview flags to scraper ship local
+- HTML report: added Previews cards (2 sample questions per category; first bullet for each new summary)
+- Teach logs: labeled decisions for learning
+  - [teach §E. Validate] Levenshtein > 0.85 → reject
+  - [teach §F. SimHash] Hamming < 8 → skip near-duplicate question
+  - [teach §B. Heuristics] Enhanced TF‑IDF cosine max < 0.85 → unique
+- Orchestrator: fixed signature and CLI wiring; pass teach/preview through to harvesters/importers
+- Import (research): supports --teach to print category decision scoring
+
+Why
+- Improve explainability while running (teaching-first)
+- Provide fast visual sampling before full review (previews)
+
+How to use
+  scraper ship local \
+    --qm /path/to/QuizMentor.ai/quizzes \
+    --research /path/to/AI-Research \
+    --report-dir ./reports \
+    --teach --preview --strict \
+    --max-content 200 --questions-per-content 5
+
+Follow-ups
+- Strict gates (fail-fast) toggles for manifest/schema/tag mismatches
+- SimHash dedupe report section listing skipped questions with distances
+- Inline README anchors in teach logs like [teach §F. SimHash]
+
+---
+
+Date: 2025-09-03 (Journeys + CE/TDD docs update)
+
+What changed
+- Added docs/JOURNEYS.md with 20 user + 20 S2S journeys
+- Updated docs/EPICS.md with CE principles, TDD gates, and references to journeys
+- Linked JOURNEYS and SYSTEM_STATUS from README
+- Added docs/SYSTEM_STATUS.md status snapshot
+- Created GitHub labels and issues for epics and tasks
+
+Why
+- Move to AI-OS-CE style with clear acceptance scenarios and TDD gates
+
+Notes
+- Phase 1 acceptance: cover U1–U5, S1–S7, S12, S19 via unit+e2e
+
+---
+
+Date: 2025-09-03 (Legal guardrails seed)
+
+What changed
+- Added docs/LEGAL_GUARDRAILS.md and docs/POLICY_TEMPLATE.yaml
+- README: product positioning and legal overview appendix
+- TAURI: Legal Center, policy/profile wiring, review queue panels
+- Ship report: Legal Summary card placeholder, orchestrator passes legal context
+- Seeded epics (#30–#32) and tasks (#33–#42) for legal, format studio, and review/audit
+
+Why
+- Position Scraper as a “Local Knowledge Harvester & Compliance Packager” with CE/TDD guardrails
+
+Next up
+- Implement policy loader + --policy flag (issue #33)
+- Gate engine stub for PII+quotes (issue #34)
+- License detection + attribution (issue #35)
+- Robots/ToS snapshot + enforcement (issue #36)

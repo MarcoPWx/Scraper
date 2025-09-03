@@ -13,7 +13,7 @@ import time
 import re
 import random
 from datetime import datetime
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Any
 from dataclasses import dataclass
 from collections import defaultdict
 from pathlib import Path
@@ -83,6 +83,8 @@ class MassiveHarvester:
         # SimHash dedupe (in-memory, per-run)
         self._simhashes: List[int] = []
         self._simhash_threshold: int = 8
+        self._simhash_skipped: List[Dict[str, Any]] = []
+        self._leven_rejected: int = 0
 
         # HTTP session
         self.session = requests.Session()
@@ -402,14 +404,16 @@ class MassiveHarvester:
                 # Levenshtein-based uniqueness
                 if not self.is_unique_question(question):
                     if self.teach:
-                        console.print(f"[red]Rejected (Levenshtein similarity > 0.85):[/red] {question.question}")
+                        console.print(f"[red][teach §E. Validate][/red] Rejected (Levenshtein similarity > 0.85): {question.question}")
+                    self._leven_rejected += 1
                     continue
                 # SimHash near-duplicate check
                 simh = self._simhash64(question.question)
                 nearest = min((self._hamming(simh, h) for h in self._simhashes), default=64)
                 if nearest < self._simhash_threshold:
                     if self.teach:
-                        console.print(f"[red]Using SimHash dedupe[/red] distance={nearest} < {self._simhash_threshold} → skip")
+                        console.print(f"[red][teach §F. SimHash][/red] Using SimHash dedupe distance={nearest} < {self._simhash_threshold} → skip")
+                    self._simhash_skipped.append({"question": question.question[:120], "distance": nearest})
                     continue
                 self._simhashes.append(simh)
                 if self.teach:
@@ -531,7 +535,7 @@ class MassiveHarvester:
     def is_unique_question(self, question: QuestionCandidate, threshold: float = 0.85) -> bool:
         if question.fingerprint in self.question_fingerprints:
             if self.teach:
-                console.print("[red]Duplicate fingerprint found → skip[/red]")
+                console.print("[red][teach §E. Validate][/red] Duplicate fingerprint found → skip")
             return False
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
@@ -751,6 +755,9 @@ class MassiveHarvester:
 ╚══════════════════════════════════════════════════════════╝[/bold green]
 """)
         return {
+            "dedupe_skipped": len(self._simhash_skipped),
+            "dedupe_samples": self._simhash_skipped[:10],
+            "leven_rejected": self._leven_rejected,
             "content_harvested": stats.get("total_content", 0),
             "questions_generated": stats.get("total_questions", 0),
             "csv_file": str(csv_file),

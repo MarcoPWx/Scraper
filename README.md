@@ -1,5 +1,10 @@
 # Scraper
 
+Product: Local Knowledge Harvester & Compliance Packager
+- Tagline: Privacy‑first harvesting and packaging with legal guardrails, previews, and teaching‑first explainability.
+- Who it serves: content/learning teams, platform/QA, legal/compliance, PMs.
+- Differentiators: local‑only, deterministic heuristics, TDD‑gated pipelines, teach logs that map to docs, configurable exporters/importers, and a desktop UI (Tauri).
+
 A modular educational content harvester and question-generation engine (extracted from QuizMentor.ai) with built-in exporters and importers for two targets:
 - QuizMentor (quizzes JSON) — local-only by default
 - AI-Research (markdown summaries + index updates) — local-only by default
@@ -17,9 +22,9 @@ At a glance (local-only flows)
 +-----------+     +------------+     +----------------------+     +-------------------+      +----------------------+
 | Sources   | --> | Harvesters | --> | SQLite (harvest.db)  | --> | Exporters (quiz)  |  or  | Importers (research) |
 +-----------+     +------------+     +----------------------+     +-------------------+      +----------------------+
-                                                                  | quizzes/*.json    |      | summaries/*.md       |
-                                                                  | harvest_index.json|      | index.md updated     |
-                                                                  +-------------------+      +----------------------+
+                                                                 | quizzes/*.json    |      | summaries/*.md       |
+                                                                 | harvest_index.json|      | index.md updated     |
+                                                                 +-------------------+      +----------------------+
 
 Docking bays (adapters)
 - QuizMentor docking: local file drop-in to QuizMentor/quizzes/ (staging). No DB required.
@@ -67,6 +72,14 @@ Commands (cheat sheet)
   scraper import quizmentor --from ./out --to /path/to/QuizMentor.ai/quizzes --mode copy
 - Import entries to AI-Research repo (markdown + index, local-only):
   scraper import research --db ./harvest_output/harvest.db --repo /path/to/AI-Research --edition PRO --min-quality 0.75
+
+- Ship (one-shot, teach + preview):
+  scraper ship local \
+    --qm /path/to/QuizMentor.ai/quizzes \
+    --research /path/to/AI-Research \
+    --report-dir ./reports \
+    --teach --preview --strict \
+    --max-content 200 --questions-per-content 5
 
 
 Core concepts & glossary (plain English)
@@ -760,4 +773,47 @@ Appendix N — Teach me like I’m new (clarifications)
 - SimHash: a fast fingerprint for text; if two fingerprints differ by only a few bits (Hamming distance), the texts are near-duplicates.
 - Idempotent: safe to run again; nothing breaks or duplicates.
 
+
+Appendix O — Teach & Preview mode quickstart
+
+Teach mode (verbose learning logs)
+- Use --teach on ship or harvest/import commands to see labeled decisions:
+  - [teach §E. Validate] Levenshtein ratio > 0.85 → reject near-duplicate wording
+  - [teach §F. SimHash] Hamming distance < 8 → skip near-duplicate question by fingerprint
+  - [teach §B. Heuristics] EnhancedHarvester TF‑IDF cosine max < 0.85 → unique
+- These labels map to sections in this README so you can jump between logs and docs.
+
+Preview mode (fast sampling)
+- Use --preview on ship to include previews in the HTML report:
+  - Quizzes: two sample questions per category
+  - Research: the first bullet of each new summary
+
+One-shot with teach+preview
+  scraper ship local \
+    --qm /path/to/QuizMentor.ai/quizzes \
+    --research /path/to/AI-Research \
+    --report-dir ./reports \
+    --teach --preview --strict \
+    --max-content 200 --questions-per-content 5
+
+Heuristics thresholds (cheat sheet)
+- Uniqueness (text): Levenshtein ratio < 0.85
+- Uniqueness (semantic, enhanced): TF‑IDF cosine max < 0.85
+- Near-duplicate fingerprint (SimHash): Hamming distance < 8 → skip
+
+
+Appendix P — Productization & Tauri UI (proposal)
+
+This project can stand alone as a desktop product: local-only harvesting, previews, and teaching-first logs.
+- See docs/TAURI.md for a proposed Tauri UI (Rust + WebView) in the style of AI-OS-PRO
+- See docs/EPICS.md for epics, phases, and acceptance criteria (Frontend, Learning Center, Gating, Reports)
+- See docs/JOURNEYS.md for 20 user journeys and 20 system-to-system journeys used as acceptance scenarios
+- See docs/SYSTEM_STATUS.md for an at-a-glance status snapshot
+
 End of appendices.
+
+
+Appendix Q — Legal guardrails & policy (overview)
+- See docs/LEGAL_GUARDRAILS.md for the design and gates
+- Use docs/POLICY_TEMPLATE.yaml to create a project policy.yaml
+- Ship Report shows a Legal Summary card (placeholder until gates are implemented)
