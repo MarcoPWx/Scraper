@@ -203,6 +203,7 @@ class ShipLocalOrchestrator:
             "params": params,
             "previews_quiz": previews_quiz,
             "previews_research": previews_research,
+            "legal": ctx.get("legal", {}),
         })
         self.console.print(f"[green]Report:[/green] {report_path}")
 

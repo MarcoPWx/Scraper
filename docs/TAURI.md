@@ -7,6 +7,7 @@ Goals
 - Run the full pipeline locally with clear, teach‑first feedback
 - Zero secrets, zero cloud dependencies by default
 - Cross‑platform (macOS, Linux, Windows) with small binary size
+- Provide a Legal Center to configure policies, review flags, and maintain audit trails
 
 
 Information Architecture
@@ -17,13 +18,16 @@ Information Architecture
   - Research: list new/updated summaries; link to index.md
   - Ship (One‑shot): orchestrate harvest → export → validate → import → report
   - Reports: open reports/ship-report.html and history
-  - Settings: paths (output_dir, quizzes dir, research repo), thresholds, strict gates
+  - Legal Center: policy wizard, flagged items queue, audit trail
+  - Settings: paths (output_dir, quizzes dir, research repo), thresholds, strict gates, policy/profile
   - Learning Center: embedded docs mirroring README and EPICS (searchable)
 
 - Panels
   - Teaching Console: real‑time stream of --teach logs with anchors to docs
   - Artifacts Explorer: tree of out/ and reports/
   - Preview Cards: inline sample questions and summary bullets
+  - Legal Summary: table of legal gates and counts; click through to flagged items
+  - Review Queue: triage UI (Fix/Redact/Exclude) with reason codes
 
 
 Technical Design
@@ -31,6 +35,7 @@ Technical Design
   - The UI calls the bundled scraper CLI as a subprocess (e.g., `scraper ship local ...`)
   - Stream stdout/stderr via Tauri Command API to the Teaching Console
   - Read artifacts (manifest.json, quizzes/*.json, reports/ship-report.html) from disk
+  - Policy/Profile awareness: pass --policy and --profile to CLI; persist settings in app config
 
 - IPC & Permissions
   - Minimal IPC: only run whitelisted commands with validated parameters

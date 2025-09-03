@@ -1,5 +1,10 @@
 # Scraper
 
+Product: Local Knowledge Harvester & Compliance Packager
+- Tagline: Privacy‑first harvesting and packaging with legal guardrails, previews, and teaching‑first explainability.
+- Who it serves: content/learning teams, platform/QA, legal/compliance, PMs.
+- Differentiators: local‑only, deterministic heuristics, TDD‑gated pipelines, teach logs that map to docs, configurable exporters/importers, and a desktop UI (Tauri).
+
 A modular educational content harvester and question-generation engine (extracted from QuizMentor.ai) with built-in exporters and importers for two targets:
 - QuizMentor (quizzes JSON) — local-only by default
 - AI-Research (markdown summaries + index updates) — local-only by default
@@ -806,3 +811,9 @@ This project can stand alone as a desktop product: local-only harvesting, previe
 - See docs/SYSTEM_STATUS.md for an at-a-glance status snapshot
 
 End of appendices.
+
+
+Appendix Q — Legal guardrails & policy (overview)
+- See docs/LEGAL_GUARDRAILS.md for the design and gates
+- Use docs/POLICY_TEMPLATE.yaml to create a project policy.yaml
+- Ship Report shows a Legal Summary card (placeholder until gates are implemented)
