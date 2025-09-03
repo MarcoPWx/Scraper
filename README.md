@@ -453,3 +453,311 @@ Roadmap (local-first)
 
 License
 MIT
+
+
+Appendix A — Big-picture architecture (numbered) and zoom-ins
+
+[1]           [2]            [3]                       [4]                      [5]                      [6]
++---------+   +----------+   +---------------------+   +--------------------+   +--------------------+   +---------------------+
+| Sources |-->| Harvest  |-->| SQLite (harvest.db) |-->| Export (quizzes)  |-->| Validate (manifest)|-->| Import QuizMentor   |
+| (docs,  |   | (massive |   | + enhanced.db (opt) |   | + manifest.json   |   | + schema + sanity  |   |   quizzes/*.json    |
+|  SO,    |   |  /enh)   |   +---------------------+   +--------------------+   +--------------------+   +---------------------+
+|  github)|   +----------+                                               |                               
++---------+                                                              | [7]
+                                                                          v
+                                                                      +---------------------+     [8]
+                                                                      | Import AI-Research  |----->+----------------------+
+                                                                      |  summaries/*.md     |      | HTML Report (static) |
+                                                                      |  index.md append    |      |  totals, warnings,   |
+                                                                      +---------------------+      |  diffs, previews     |
+                                                                                                     +----------------------+
+
+Notes
+1) Sources: curated vendor docs, StackOverflow, GitHub READMEs (local HTTP fetch)
+2) Harvest: MassiveHarvester (broad) and EnhancedHarvester (quality-focused)
+3) Storage: SQLite database at output_dir/harvest.db (plus enhanced_harvest.db for enhanced)
+4) Export (quizzes): write quizzes/quiz_<category>_harvested.json + harvest_index.json + manifest.json
+5) Validate: quick gates (manifest checksums, minimal schema, sanity stats)
+6) Import QuizMentor: copy/link files into QuizMentor/quizzes (staging)
+7) Import AI-Research: create summaries/<slug>.md and append docs/research/index.md (idempotent)
+8) HTML Report: single static page summarizing counts, categories, warnings, and previews
+
+
+Appendix B — User journeys (step-by-step)
+
+1) Quiz Engineer (local staging)
+- Goal: Land fresh quizzes into QuizMentor/quizzes
+- Journey:
+  1. scraper harvest massive --output-dir /tmp/harvest --complete
+  2. scraper export quizmentor --db /tmp/harvest/harvest.db --out /tmp/harvest_out
+  3. scraper validate quiz --from /tmp/harvest_out   # optional gate
+  4. scraper import quizmentor --from /tmp/harvest_out --to /path/to/QuizMentor.ai/quizzes --mode copy
+  5. Open /path/to/QuizMentor.ai/quizzes and sample open quiz_* files
+- Success signals: quiz files present, counts match manifest, app/mocks can read
+- Failure states: no quiz files (rerun export), schema errors (fix), counts mismatch (investigate manifest)
+
+2) Research Editor (markdown, no LLM)
+- Goal: Create canonical markdown summaries and index entries
+- Journey:
+  1. scraper harvest massive --output-dir /tmp/harvest --complete (or reuse DB)
+  2. scraper validate harvest --db /tmp/harvest/harvest.db  # optional
+  3. scraper import research --db /tmp/harvest/harvest.db --repo /path/to/AI-Research --edition PRO --min-quality 0.75 --dry-run --limit 20
+  4. Remove --dry-run and run again to write files
+- Success signals: new summaries/<slug>.md files, new rows in index.md under correct categories
+- Failure states: missing index.md (create it), unknown tags (warn), duplicate slug (skipped)
+
+3) MLE (quality & rules tuning)
+- Goal: Adjust tags map and thresholds, rerun safely
+- Journey:
+  1. Create tags_map.json (synonyms + enforce)
+  2. Rerun research import with --mapping tags_map.json
+  3. Compare report and diffs; iterate
+
+4) PM (visibility)
+- Goal: See what shipped this run
+- Journey:
+  1. Open reports/ship-report.html
+  2. Check totals, warnings, previews, and diffs
+
+
+Appendix C — S2S stories (system-to-system)
+
+1) Scraper → QuizMentor staging
+- Contract: quiz_*.json per category; harvest_index.json; optional manifest.json
+- Behavior: overwrite-safe; verify-only and dock modes supported; optional symlinks
+
+2) Scraper → AI-Research repo
+- Contract: summaries/<slug>.md and an appended row in docs/research/index.md
+- Behavior: idempotent writes; tag normalization to canonical list; Drafts fallback
+
+3) Scraper internal
+- Contract: harvest.db tables (generated_questions, harvested_content)
+- Behavior: thresholds (min_quality, min_confidence), dedupe guards, deterministic scoring
+
+
+Appendix D — Artifacts & logs (what you’ll see)
+
+After a ship run, a typical tree looks like:
+
+/tmp/harvest
+├─ harvest.db
+└─ quiz_harvest_20250903_215500.csv             # optional CSV report
+
+/tmp/harvest_out
+├─ manifest.json                                # checksums + counts
+├─ harvest_index.json
+└─ quizzes/
+   ├─ quiz_kubernetes_harvested.json
+   ├─ quiz_aws_harvested.json
+   └─ ...
+
+/path/to/QuizMentor.ai/quizzes
+├─ quiz_kubernetes_harvested.json
+├─ quiz_aws_harvested.json
+└─ harvest_index.json
+
+/path/to/AI-Research/docs/research
+├─ summaries/
+│  ├─ kubernetes-intro-kubernetes-io.md
+│  └─ ...
+├─ index.md
+└─ TAGS.md
+
+./reports
+└─ ship-report.html                              # human-friendly HTML report
+
+
+Appendix E — Validation gates & reports (details)
+
+Gates
+- Manifest: sha256/size/questions stable per file; totals match
+- Minimal schema (quizzes): questions[], options[], correct_answer in range, difficulty 1..5, metadata
+- Sanity stats: generated_questions > 0; avg_confidence ≥ min; duplicate ratio acceptable
+- Repo checks: AI-Research docs/research paths & template exist; categories discoverable in index.md
+
+Report (HTML)
+- Cards: Totals, Quiz Files, Research Entries, Warnings/Errors
+- Tables: per-quiz breakdown and per-summary listing
+- Previews: sample 1–2 Qs per category; first summary bullet per entry
+- Footer: run parameters (db path, output dir, thresholds), timestamps
+
+
+Appendix F — Deep-dive notes (manifest, schema, symlink, sentinel, SimHash)
+
+- Manifest: a JSON inventory of produced files (name, sha256, size, counts). Used to verify integrity before import.
+- Minimal schema: just enough structure to prove the file is usable (not a full registry). Faster than JSON Schema, good for gates.
+- Symlink vs copy: symlink saves space/time by pointing to source files; copy duplicates bytes. Use copy by default; if symlink fails, fallback to copy.
+- Sentinel file: optional export_complete.json used as a "done" marker. Redundant if you validate manifest + schema; keep it optional.
+- SimHash dedupe: compute 64-bit hash from character trigrams, compare Hamming distance to detect near-duplicates (skip if < 8–10).
+
+Pseudocode (SimHash)
+- shards = trigrams(text)
+- h = simhash64(shards)
+- if any hamdist(h, h_prev) < threshold: skip
+
+
+Appendix G — Operations runbook (checklists)
+
+Harvest:
+- Ensure internet; pick output_dir; choose max-content and workers per bandwidth
+- Watch for transient HTTP errors; re-run is safe
+
+Export:
+- Ensure DB path; pick out dir; confirm categories expected
+
+Validate (optional but recommended):
+- Run scraper validate quiz --from <out> and check for OK
+- On strict failures: inspect manifest or bad file and re-export
+
+Import:
+- QuizMentor: copy into quizzes; re-run safe (overwrites staging)
+- AI-Research: re-run safe (idempotent; existing slugs skipped; index no-dupe)
+
+Report:
+- Store reports/ship-report.html with the commit/PR; review warnings with editors
+
+
+Appendix H — Examples & scripts
+
+QuizMentor repo utility (verify/dock): scripts/harvest-dock.js
+- Verify only: node scripts/harvest-dock.js --verify-only --from /tmp/harvest_out/quizzes
+- Dock: node scripts/harvest-dock.js --from /tmp/harvest_out/quizzes --to ./quizzes --mode copy
+
+Scraper planned commands
+- scraper validate harvest|quiz|research  # run gates without importing
+- scraper ship local --output ... --repos.quizmentor ... --repos.research ... --report-dir ./reports --strict
+
+
+Appendix I — Extended glossary (quick refs)
+- Canonical list: the official, source-of-truth list of allowed values (e.g., TAGS.md)
+- Idempotent: re-running yields same end state (no duplicate files/rows)
+- Normalization: making values consistent (vectors: length 1; tags: lowercase-hyphen-synonyms)
+- Centroid: average vector of a category; for similarity-based suggestions
+- Cosine similarity: [0..1] similarity on normalized vectors
+- TF‑IDF: token weighting by frequency and rarity
+- SimHash: near-duplicate detection via Hamming distance
+- Manifest: JSON describing outputs (hashes, sizes, counts)
+- Minimal schema: minimum fields/types to accept a file
+- Sentinel: optional "done" marker; not required
+- Symlink: filesystem pointer to source file; fallback to copy
+
+
+Appendix J — Mega architecture diagram (teaching edition)
+
+                               ┌─────────────────────────── Sources (curated) ────────────────────────────┐
+                               │  - Vendor Docs  - StackOverflow  - GitHub READMEs  - Tutorials (opt)   │
+                               └──────────────────────────────────────────────────────────────────────────┘
+                                                    │
+                                                    ▼
+                                     ┌───────────────────────────────┐
+                                     │ [2] Harvesters (local HTTP)  │
+                                     │  Massive + Enhanced          │
+                                     │  • parse HTML, extract text  │
+                                     │  • extract concepts          │
+                                     │  • generate MCQs             │
+                                     └──────────────┬────────────────┘
+                                                    │ questions + content
+                                                    ▼
+                                    ┌───────────────────────────────────────┐
+                                    │ [3] SQLite (harvest.db / enhanced.db)│
+                                    │  harvested_content, generated_questions│
+                                    └──────────────┬────────────────────────┘
+                                                   │
+                                                   ▼
+                               ┌───────────────────────────────┐     ┌─────────────────────────────────┐
+                               │ [4] Export (quizzes JSON)     │     │  (optional) Export complete     │
+                               │  • quizzes/quiz_<cat>.json    │     │  • manifest.json + sentinel     │
+                               │  • harvest_index.json         │     └─────────────────────────────────┘
+                               └──────────────┬────────────────┘
+                                              │
+                                              ▼
+                               ┌───────────────────────────────┐
+                               │ [5] Validate (local gates)    │
+                               │  • manifest checksums         │
+                               │  • minimal schema             │
+                               │  • sanity stats               │
+                               └──────────────┬────────────────┘
+                                              │ ok
+                                              ├───────────────────────────────────────────┐
+                                              │                                           │
+                                              ▼                                           ▼
+             ┌─────────────────────────────────────────────┐               ┌─────────────────────────────────────────┐
+             │ [6] Import to QuizMentor (staging files)    │               │ [7] Import to AI-Research (markdown)   │
+             │  • copy/link quiz_*.json → quizzes/         │               │  • summaries/<slug>.md from template  │
+             │  • overwrite-safe                            │               │  • index.md row under category        │
+             └──────────────────────────┬────────────────────┘               └──────────────────────────┬────────────┘
+                                        │                                             │
+                                        │                                             │ idempotent
+                                        ▼                                             ▼
+                                 ┌─────────────────┐                         ┌──────────────────────────┐
+                                 │  Staging files │                         │   Markdown knowledge    │
+                                 │  for curation  │                         │   base (private)        │
+                                 └─────────────────┘                         └──────────────────────────┘
+                                              
+                                              ▼
+                               ┌───────────────────────────────┐
+                               │  [8] HTML Report (static)     │
+                               │  • totals, warnings, previews │
+                               │  • parameters + timestamps    │
+                               └───────────────────────────────┘
+
+Legend
+- Solid arrows = data flow; dotted/optional blocks = optional components (manifest, sentinel, HTML)
+- Idempotent steps do not duplicate on re-runs
+
+
+Appendix K — Sequence diagram (text) for one-shot ship
+
+User -> Scraper: ship local (paths..., thresholds..., report-dir)
+Scraper -> Harvesters: run massive (or enhanced)
+Harvesters -> SQLite: write harvested_content, generated_questions
+Scraper -> Export: read SQLite, write quizzes/*.json + index + manifest
+Scraper -> Validate: check manifest, schema, sanity
+Validate --> Scraper: OK (or warnings)
+Scraper -> Import QM: copy/link files into QuizMentor/quizzes
+Scraper -> Import Research: write summaries/*.md + index append
+Scraper -> Report: render ship-report.html
+Report --> User: Open reports/ship-report.html
+
+
+Appendix L — Sample logs (annotated)
+
+- Harvest
+  [INFO] Starting Massive Harvest... (max_content=200, workers=8)
+  [INFO] Harvested 136 content items; Generated 512 questions (avg_conf=0.82)
+
+- Export (quiz)
+  [INFO] Writing quizzes: 11 categories → /tmp/harvest_out/quizzes
+  [INFO] Wrote manifest.json (totals.questions=1107)
+
+- Validate
+  [OK] 11/11 quiz files pass minimal schema
+  [OK] Checksums match manifest; totals OK
+  [WARN] 2 files have explanations > 500 chars (trimmed)
+
+- Import QM
+  [OK] Docked 11/11 quiz files to QuizMentor/quizzes (mode=copy)
+
+- Import Research
+  [OK] Created 18 summaries; Skipped 2 existing slugs; Appended 18 index rows
+
+- Report
+  [OK] Wrote reports/ship-report.html
+
+
+Appendix M — Common pitfalls & quick fixes
+- No quiz files found → Re-run export; check path /tmp/harvest_out/quizzes
+- Schema error (correct_answer out of range) → Inspect file, regenerate with fixed generator
+- Unknown tag → Add to tags_map.json or keep as warning (editor can fix later)
+- Duplicate slugs → Expected on re-run; importer skips them
+- Symlink failure → Switch to --mode copy (Windows or restricted FS)
+
+
+Appendix N — Teach me like I’m new (clarifications)
+- Canonical list: the official “allowed values” list maintained by a project (e.g., AI-Research TAGS.md). We normalize to it for consistency.
+- Minimal schema: “Do we have the minimum fields the app needs?” Fast yes/no without full schema registry.
+- Sentinel file: an optional “done” marker; not necessary when we validate manifest and schema.
+- SimHash: a fast fingerprint for text; if two fingerprints differ by only a few bits (Hamming distance), the texts are near-duplicates.
+- Idempotent: safe to run again; nothing breaks or duplicates.
+
+End of appendices.
