@@ -113,3 +113,23 @@ Why
 
 Notes
 - Phase 1 acceptance: cover U1–U5, S1–S7, S12, S19 via unit+e2e
+
+---
+
+Date: 2025-09-03 (Legal guardrails seed)
+
+What changed
+- Added docs/LEGAL_GUARDRAILS.md and docs/POLICY_TEMPLATE.yaml
+- README: product positioning and legal overview appendix
+- TAURI: Legal Center, policy/profile wiring, review queue panels
+- Ship report: Legal Summary card placeholder, orchestrator passes legal context
+- Seeded epics (#30–#32) and tasks (#33–#42) for legal, format studio, and review/audit
+
+Why
+- Position Scraper as a “Local Knowledge Harvester & Compliance Packager” with CE/TDD guardrails
+
+Next up
+- Implement policy loader + --policy flag (issue #33)
+- Gate engine stub for PII+quotes (issue #34)
+- License detection + attribution (issue #35)
+- Robots/ToS snapshot + enforcement (issue #36)
