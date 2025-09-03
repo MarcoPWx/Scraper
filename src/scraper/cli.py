@@ -11,6 +11,8 @@ Usage examples:
 """
 
 import argparse
+import json
+from rich.console import Console
 from pathlib import Path
 
 from .harvesters.massive import MassiveHarvester
@@ -115,6 +117,8 @@ def cmd_ship_local(args) -> int:
         mode=args.mode,
         strict=args.strict,
         limit=args.limit,
+        teach=args.teach,
+        preview=args.preview,
     )
     print(json.dumps({k: v for k, v in result.items() if k in ("db", "export", "report")}, indent=2))
     return 0
@@ -170,6 +174,7 @@ def build_parser() -> argparse.ArgumentParser:
     iar.add_argument("--mapping", help="Optional JSON tag→category mapping file", default=None)
     iar.add_argument("--dry-run", action="store_true")
     iar.add_argument("--limit", type=int, default=None)
+    iar.add_argument("--teach", action="store_true")
     iar.set_defaults(func=cmd_import_airesearch)
 
     # validate
@@ -209,6 +214,7 @@ def build_parser() -> argparse.ArgumentParser:
     local.add_argument("--strict", action="store_true")
     local.add_argument("--teach", action="store_true")
     local.add_argument("--limit", type=int, default=None)
+    local.add_argument("--preview", action="store_true")
     local.set_defaults(func=cmd_ship_local)
 
     return parser

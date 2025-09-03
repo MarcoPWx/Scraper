@@ -65,3 +65,34 @@ Future (deferred)
 Notes
 - All new behavior is documented in README with examples and ASCII flows
 - Keep imports idempotent; add --update-existing later only when there’s a reviewer workflow
+
+---
+
+Date: 2025-09-03 (Teach + Preview upgrade)
+
+What changed
+- Ship command: added --teach and --preview flags to scraper ship local
+- HTML report: added Previews cards (2 sample questions per category; first bullet for each new summary)
+- Teach logs: labeled decisions for learning
+  - [teach §E. Validate] Levenshtein > 0.85 → reject
+  - [teach §F. SimHash] Hamming < 8 → skip near-duplicate question
+  - [teach §B. Heuristics] Enhanced TF‑IDF cosine max < 0.85 → unique
+- Orchestrator: fixed signature and CLI wiring; pass teach/preview through to harvesters/importers
+- Import (research): supports --teach to print category decision scoring
+
+Why
+- Improve explainability while running (teaching-first)
+- Provide fast visual sampling before full review (previews)
+
+How to use
+  scraper ship local \
+    --qm /path/to/QuizMentor.ai/quizzes \
+    --research /path/to/AI-Research \
+    --report-dir ./reports \
+    --teach --preview --strict \
+    --max-content 200 --questions-per-content 5
+
+Follow-ups
+- Strict gates (fail-fast) toggles for manifest/schema/tag mismatches
+- SimHash dedupe report section listing skipped questions with distances
+- Inline README anchors in teach logs like [teach §F. SimHash]

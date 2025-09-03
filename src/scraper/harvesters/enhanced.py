@@ -233,7 +233,7 @@ class EnhancedHarvester:
             similarities = cosine_similarity(new_vector, self.question_vectors)
             max_similarity = similarities.max()
             if self.teach:
-                console.print(f"[blue]TF‑IDF cosine max[/blue]={max_similarity:.2f} < {threshold:.2f} → {'unique' if max_similarity < threshold else 'not unique'}")
+                console.print(f"[blue][teach §B. Heuristics][/blue] TF‑IDF cosine max={max_similarity:.2f} < {threshold:.2f} → {'unique' if max_similarity < threshold else 'not unique'}")
             return max_similarity < threshold
         except Exception:
             for existing in self.existing_questions[-100:]:
