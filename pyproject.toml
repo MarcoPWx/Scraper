@@ -35,6 +35,13 @@ dependencies = [
   "rich>=13.5.2"
 ]
 
+[project.optional-dependencies]
+test = [
+  "pytest>=7.4",
+  "pytest-cov>=4.1",
+  "requests-mock>=1.11.0"
+]
+
 [project.urls]
 Homepage = "https://github.com/MarcoPWx/Scraper"
 
@@ -43,4 +50,8 @@ scraper = "scraper.cli:main"
 
 [tool.hatch.build]
 packages = ["src/scraper"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
 
