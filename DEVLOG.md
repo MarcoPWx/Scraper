@@ -133,3 +133,47 @@ Next up
 - Gate engine stub for PII+quotes (issue #34)
 - License detection + attribution (issue #35)
 - Robots/ToS snapshot + enforcement (issue #36)
+
+---
+
+Date: 2025-09-03 (Pause checkpoint / Resume plan)
+
+Snapshot (main)
+- Docs: positioning, CE/TDD EPICS, JOURNEYS (20+20), SYSTEM_STATUS, LEGAL_GUARDRAILS, POLICY_TEMPLATE, TAURI updates
+- Code: ship --preview, teach logs improvements, HTML report (previews + Legal Summary placeholder), orchestrator wiring, CI workflow, SimHash unit test
+- GitHub: labels; epics (#1–#7, #30–#32); tasks seeded (#8–#29, #33–#42)
+
+Resume sequence (TDD)
+1) #33 Policy loader + --policy flag
+   - Add src/scraper/policy.py (load_policy)
+   - CLI: add --policy to ship local; pass policy_path to orchestrator
+   - Orchestrator: load policy; expose ctx["legal"] basics (honor_robots, require_attribution)
+   - Tests: tests/test_policy.py (load success/missing sections); tests/test_cli_policy_flag.py
+   - Acceptance: running with docs/POLICY_TEMPLATE.yaml shows policy-loaded values in Legal Summary card
+
+2) #34 Legal gates stub: PII (regex+entropy) + quotes
+   - Add src/scraper/legal_gates.py (evaluate_text: pii_hits, secrets_hits, long_quotes, percent_reproduced)
+   - Integrate into orchestrator: aggregate counts across quiz/research text
+   - Tests: tests/test_legal_gates.py (regex/entropy/quotes); e2e tests/e2e/test_legal_summary.py
+   - Acceptance: fixture data triggers counts; Legal Summary shows nonzero totals
+
+3) #35 License detection + attribution required
+   - SPDX/heuristic detection; require attribution fields on artifacts
+   - Strict policy blocks Unknown/incompatible; normal warns and queues
+   - Unit + e2e; Legal Summary reports license counts
+
+4) #36 Robots/ToS snapshot + enforcement
+   - Record ToS snapshot; honor allow/deny and robots.txt (mocked parser in tests)
+   - Strict blocks disallowed; Legal Summary reports robots_disallow
+
+Branches
+- Create feature branch per task: feat/policy-loader → feat/legal-gates → feat/license-detect → feat/robots-tos
+
+Commands (reference)
+- git checkout -b feat/policy-loader
+- pip install -e .[test]
+- pytest -q
+- git add -A && git commit -m "feat(policy): loader + --policy" && git push -u origin feat/policy-loader
+
+Definition of Done (resume milestone)
+- Running `scraper ship local --policy ./docs/POLICY_TEMPLATE.yaml --teach --preview` produces a report where the Legal Summary card shows policy-loaded fields and aggregate counts for PII/quotes gates; unit+e2e tests pass in CI.
