@@ -3,7 +3,7 @@ requires = ["hatchling>=1.18.0"]
 build-backend = "hatchling.build"
 
 [project]
-name = "scraper"
+name = "Scraper"
 version = "0.1.0"
 description = "Modular educational content scraping and question-generation engine"
 readme = "README.md"

@@ -1,4 +1,4 @@
-# scraper
+# Scraper
 
 A modular educational content scraping and question-generation engine extracted from QuizMentor.ai.
 
@@ -12,7 +12,7 @@ Features:
 Quick start
 
 1) Install (editable):
-   pip install -e /Users/betolbook/Documents/github/scraper
+pip install -e /Users/betolbook/Documents/github/Scraper
 
 2) Harvest content (massive pipeline):
    scraper harvest massive --output-dir /tmp/harvest --max-content 200 --questions-per-content 5 --workers 8
