@@ -21,3 +21,18 @@ ENV/
 # OS
 .DS_Store
 
+# Harvest outputs (local)
+harvest_output/
+*.db
+*.sqlite
+*.sqlite3
+*.csv
+*.tsv
+
+# Local cache
+.cache/
+
+# Optional: ignore sample harvested datasets in working tree
+# Uncomment if you do not want changes to sample payloads tracked
+# samples/**/harvested/
+
