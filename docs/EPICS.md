@@ -122,6 +122,7 @@ Issue taxonomy (labels)
 References
 - CI workflow: .github/workflows/ci.yml
 - Tests root: /tests
+- Journeys: ./JOURNEYS.md (U1–U20, S1–S20)
 - README (teach/preview quickstart): ../README.md
 - Tauri UI proposal: ./TAURI.md
 

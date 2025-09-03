@@ -96,3 +96,20 @@ Follow-ups
 - Strict gates (fail-fast) toggles for manifest/schema/tag mismatches
 - SimHash dedupe report section listing skipped questions with distances
 - Inline README anchors in teach logs like [teach §F. SimHash]
+
+---
+
+Date: 2025-09-03 (Journeys + CE/TDD docs update)
+
+What changed
+- Added docs/JOURNEYS.md with 20 user + 20 S2S journeys
+- Updated docs/EPICS.md with CE principles, TDD gates, and references to journeys
+- Linked JOURNEYS and SYSTEM_STATUS from README
+- Added docs/SYSTEM_STATUS.md status snapshot
+- Created GitHub labels and issues for epics and tasks
+
+Why
+- Move to AI-OS-CE style with clear acceptance scenarios and TDD gates
+
+Notes
+- Phase 1 acceptance: cover U1–U5, S1–S7, S12, S19 via unit+e2e

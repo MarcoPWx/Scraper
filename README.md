@@ -802,5 +802,7 @@ Appendix P — Productization & Tauri UI (proposal)
 This project can stand alone as a desktop product: local-only harvesting, previews, and teaching-first logs.
 - See docs/TAURI.md for a proposed Tauri UI (Rust + WebView) in the style of AI-OS-PRO
 - See docs/EPICS.md for epics, phases, and acceptance criteria (Frontend, Learning Center, Gating, Reports)
+- See docs/JOURNEYS.md for 20 user journeys and 20 system-to-system journeys used as acceptance scenarios
+- See docs/SYSTEM_STATUS.md for an at-a-glance status snapshot
 
 End of appendices.
