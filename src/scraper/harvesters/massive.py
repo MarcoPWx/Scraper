@@ -66,7 +66,7 @@ class QuestionCandidate:
 class MassiveHarvester:
     """Massive content harvester for quiz and learning content generation"""
 
-    def __init__(self, output_dir: str = "./harvest_output"):
+    def __init__(self, output_dir: str = "./harvest_output", teach: bool = False):
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(exist_ok=True)
 
@@ -79,6 +79,10 @@ class MassiveHarvester:
         self.content_cache: Dict[str, str] = {}
         self.question_fingerprints = set()
         self.stats = defaultdict(int)
+        self.teach = teach
+        # SimHash dedupe (in-memory, per-run)
+        self._simhashes: List[int] = []
+        self._simhash_threshold: int = 8
 
         # HTTP session
         self.session = requests.Session()
@@ -389,11 +393,29 @@ class MassiveHarvester:
         console.print("[bold cyan]Generating Questions from Content...[/bold cyan]")
         for content in content_list:
             concepts = self.extract_key_concepts(content.content)
+            if self.teach and concepts:
+                console.print(f"[yellow]Concepts extracted (top){' '}: {concepts[:min(5,len(concepts))]}[/yellow]")
             for concept in concepts[:questions_per_content]:
                 question = self.generate_question_for_concept(concept, content.content, content.category, content.subcategory)
-                if question and self.is_unique_question(question):
-                    all_questions.append(question)
-                    self.stats["questions_generated"] += 1
+                if not question:
+                    continue
+                # Levenshtein-based uniqueness
+                if not self.is_unique_question(question):
+                    if self.teach:
+                        console.print(f"[red]Rejected (Levenshtein similarity > 0.85):[/red] {question.question}")
+                    continue
+                # SimHash near-duplicate check
+                simh = self._simhash64(question.question)
+                nearest = min((self._hamming(simh, h) for h in self._simhashes), default=64)
+                if nearest < self._simhash_threshold:
+                    if self.teach:
+                        console.print(f"[red]Using SimHash dedupe[/red] distance={nearest} < {self._simhash_threshold} → skip")
+                    continue
+                self._simhashes.append(simh)
+                if self.teach:
+                    console.print(f"[green]Accepted[/green] diff={question.difficulty} src={question.source} fp={question.fingerprint[:8]}…")
+                all_questions.append(question)
+                self.stats["questions_generated"] += 1
         return all_questions
 
     def extract_key_concepts(self, text: str, max_concepts: int = 20) -> List[str]:
@@ -508,6 +530,8 @@ class MassiveHarvester:
 
     def is_unique_question(self, question: QuestionCandidate, threshold: float = 0.85) -> bool:
         if question.fingerprint in self.question_fingerprints:
+            if self.teach:
+                console.print("[red]Duplicate fingerprint found → skip[/red]")
             return False
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
@@ -523,9 +547,36 @@ class MassiveHarvester:
         for existing_q, _ in existing:
             similarity = fuzz.ratio(question.question, existing_q) / 100
             if similarity > threshold:
+                if self.teach:
+                    console.print(f"[red]Levenshtein ratio {similarity:.2f} > {threshold:.2f} (not unique)[/red]")
                 return False
         self.question_fingerprints.add(question.fingerprint)
         return True
+
+    # -----------------
+    # SimHash helpers
+    # -----------------
+    def _trigrams(self, text: str) -> List[str]:
+        s = text.lower()
+        return [s[i:i+3] for i in range(max(0, len(s)-2))]
+
+    def _simhash64(self, text: str) -> int:
+        vec = [0] * 64
+        for tg in self._trigrams(text):
+            h = int.from_bytes(hashlib.md5(tg.encode()).digest()[:8], 'big')
+            for b in range(64):
+                if (h >> b) & 1:
+                    vec[b] += 1
+                else:
+                    vec[b] -= 1
+        out = 0
+        for b in range(64):
+            if vec[b] > 0:
+                out |= (1 << b)
+        return out
+
+    def _hamming(self, a: int, b: int) -> int:
+        return (a ^ b).bit_count()
 
     # -----------------
     # Persistence & reports

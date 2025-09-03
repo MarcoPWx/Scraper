@@ -61,7 +61,7 @@ class EnhancedQuestion:
 class EnhancedHarvester:
     """Enhanced harvester with better source management and quality control"""
 
-    def __init__(self, output_dir: str = "./harvest_output"):
+    def __init__(self, output_dir: str = "./harvest_output", teach: bool = False):
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(exist_ok=True)
 
@@ -69,6 +69,7 @@ class EnhancedHarvester:
         self.source_rotation = defaultdict(int)
         self.answer_distribution = Counter()
         self.semantic_cache: Dict[str, float] = {}
+        self.teach = teach
         self.vectorizer = TfidfVectorizer(max_features=1000)
         self.question_vectors = None
         self.existing_questions: List[str] = []
@@ -231,11 +232,17 @@ class EnhancedHarvester:
             new_vector = self.vectorizer.transform([question])
             similarities = cosine_similarity(new_vector, self.question_vectors)
             max_similarity = similarities.max()
+            if self.teach:
+                console.print(f"[blue]TF‑IDF cosine max[/blue]={max_similarity:.2f} < {threshold:.2f} → {'unique' if max_similarity < threshold else 'not unique'}")
             return max_similarity < threshold
         except Exception:
             for existing in self.existing_questions[-100:]:
                 if fuzz.ratio(question, existing) > 85:
+                    if self.teach:
+                        console.print("[red]Fallback Levenshtein > 85 → not unique[/red]")
                     return False
+            if self.teach:
+                console.print("[green]Fallback uniqueness passed[/green]")
             return True
 
     def generate_quality_distractors(self, correct_answer: str, concept: str, category: str, context: str) -> List[str]:
@@ -488,6 +495,8 @@ class EnhancedHarvester:
         distractor_quality = self.assess_distractor_quality(correct_answer, distractors)
         difficulty = self.assess_difficulty(concept, text, distractor_quality)
         confidence = 0.5 + (distractor_quality * 0.3) + (0.2 if len(concepts) > 3 else 0)
+        if self.teach:
+            console.print(f"[green]Quality[/green] q={distractor_quality:.2f} [green]Conf[/green]={confidence:.2f} [green]Diff[/green]={difficulty}")
         semantic_fingerprint = hashlib.sha256(f"{question_text}{sorted(final_options)}".encode()).hexdigest()
         self.existing_questions.append(question_text)
         return EnhancedQuestion(

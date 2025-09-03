@@ -71,6 +71,7 @@ class AIResearchImporter(BaseImporter):
         mapping_file: Optional[str] = None,
         dry_run: bool = False,
         limit: Optional[int] = None,
+        teach: bool = False,
     ) -> None:
         self.db_path = Path(db_path)
         self.repo_path = Path(repo_path)
@@ -94,6 +95,7 @@ class AIResearchImporter(BaseImporter):
         self.index_md = self.docs_root / "index.md"
         self.entry_template = self.templates_dir / "ENTRY_TEMPLATE.md"
         self.summaries_dir.mkdir(parents=True, exist_ok=True)
+        self.teach = teach
 
     # --------------------
     # Data access
@@ -180,8 +182,13 @@ class AIResearchImporter(BaseImporter):
                 cat = merged[key]
                 score[cat] = score.get(cat, 0) + 1
         if not score:
+            if self.teach:
+                print("[teach] No category match → Drafts")
             return self.DEFAULT_CATEGORY
-        return max(score.items(), key=lambda kv: kv[1])[0]
+        best = max(score.items(), key=lambda kv: kv[1])[0]
+        if self.teach:
+            print(f"[teach] Category decision: {score} → {best}")
+        return best
 
     # --------------------
     # Markdown + Index

@@ -68,6 +68,7 @@ def cmd_import_airesearch(args) -> int:
         mapping_file=args.mapping,
         dry_run=args.dry_run,
         limit=args.limit,
+        teach=args.teach,
     )
     summary = importer.run()
     print(
@@ -206,6 +207,7 @@ def build_parser() -> argparse.ArgumentParser:
     local.add_argument("--report-dir", default="./reports")
     local.add_argument("--mode", choices=["copy", "link"], default="copy")
     local.add_argument("--strict", action="store_true")
+    local.add_argument("--teach", action="store_true")
     local.add_argument("--limit", type=int, default=None)
     local.set_defaults(func=cmd_ship_local)
 

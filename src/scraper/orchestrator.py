@@ -38,6 +38,7 @@ class ShipLocalOrchestrator:
             mode: str = "copy",
             strict: bool = False,
             limit: int | None = None,
+            , teach: bool = False
             ) -> Dict[str, Any]:
         ctx: Dict[str, Any] = {"steps": [], "warnings": []}
 
@@ -50,7 +51,7 @@ class ShipLocalOrchestrator:
             self.console.print(f"[green]DB:[/green] {db_path}")
         else:
             self._log_step("Harvest (massive)")
-            harvester = MassiveHarvester(output_dir=output_dir)
+            harvester = MassiveHarvester(output_dir=output_dir, teach=teach)
             summary = harvester.run_complete_harvest(
                 max_content=max_content,
                 questions_per_content=questions_per_content,
@@ -125,7 +126,7 @@ class ShipLocalOrchestrator:
         if not rr_check.get("ok", False):
             self.console.print("[yellow]AI-Research repo checks produced warnings[/yellow]")
             ctx["warnings"].append({"research_repo": rr_check})
-        rimp = AIResearchImporter(db_path=str(db_path), repo_path=str(research_repo), edition="PRO", min_quality=min_quality, mapping_file=None, dry_run=False, limit=limit)
+        rimp = AIResearchImporter(db_path=str(db_path), repo_path=str(research_repo), edition="PRO", min_quality=min_quality, mapping_file=None, dry_run=False, limit=limit, teach=teach)
         rres = rimp.run()
         self.console.print(f"Created={rres.get('created',0)} Skipped={rres.get('skipped',0)} in {rres.get('repo')}")
 
