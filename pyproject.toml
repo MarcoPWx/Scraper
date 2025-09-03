@@ -1,0 +1,46 @@
+[build-system]
+requires = ["hatchling>=1.18.0"]
+build-backend = "hatchling.build"
+
+[project]
+name = "scraper"
+version = "0.1.0"
+description = "Modular educational content scraping and question-generation engine"
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+authors = [
+  { name = "QuizMentor.ai Maintainers" }
+]
+keywords = ["scraper", "harvest", "education", "quizzes", "content" ]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent",
+  "Topic :: Internet :: WWW/HTTP",
+  "Topic :: Software Development :: Libraries :: Python Modules"
+]
+
+# Core runtime dependencies
+dependencies = [
+  "requests>=2.31.0",
+  "beautifulsoup4>=4.12.2",
+  "feedparser>=6.0.10",
+  "pandas>=2.1.0",
+  "numpy>=1.25.0",
+  "fuzzywuzzy>=0.18.0",
+  "python-Levenshtein>=0.21.0",
+  "scikit-learn>=1.3.0",
+  "tqdm>=4.66.0",
+  "rich>=13.5.2"
+]
+
+[project.urls]
+Homepage = "https://github.com/betolbook/scraper"
+
+[project.scripts]
+scraper = "scraper.cli:main"
+
+[tool.hatch.build]
+packages = ["src/scraper"]
+
