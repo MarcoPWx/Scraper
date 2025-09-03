@@ -18,6 +18,8 @@ from .harvesters.enhanced import EnhancedHarvester
 from .exporters.quizmentor import QuizMentorExporter
 from .importers.quizmentor import QuizMentorImporter
 from .importers.airesearch import AIResearchImporter
+from .validators import validate_quiz_dir, validate_harvest_db, validate_research_repo
+from .orchestrator import ShipLocalOrchestrator
 
 
 def cmd_harvest_massive(args) -> int:
@@ -76,6 +78,47 @@ def cmd_import_airesearch(args) -> int:
     return 0
 
 
+def cmd_validate_quiz(args) -> int:
+    res = validate_quiz_dir(args.src, strict=args.strict)
+    print(json.dumps(res, indent=2))
+    return 0 if res.get("ok", False) else 1
+
+
+def cmd_validate_harvest(args) -> int:
+    res = validate_harvest_db(args.db)
+    print(json.dumps(res, indent=2))
+    return 0 if res.get("ok", False) else 1
+
+
+def cmd_validate_research(args) -> int:
+    res = validate_research_repo(args.repo)
+    print(json.dumps(res, indent=2))
+    return 0 if res.get("ok", False) else 1
+
+
+def cmd_ship_local(args) -> int:
+    console = Console()
+    orch = ShipLocalOrchestrator(console=console)
+    result = orch.run(
+        output_dir=args.output_dir,
+        max_content=args.max_content,
+        questions_per_content=args.questions_per_content,
+        workers=args.workers,
+        skip_harvest=args.skip_harvest,
+        db=args.db,
+        export_out=args.export_out,
+        qm_quizzes_dir=args.qm_quizzes_dir,
+        research_repo=args.research_repo,
+        min_quality=args.min_quality,
+        report_dir=args.report_dir,
+        mode=args.mode,
+        strict=args.strict,
+        limit=args.limit,
+    )
+    print(json.dumps({k: v for k, v in result.items() if k in ("db", "export", "report")}, indent=2))
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="scraper", description="Modular scraping and question-generation engine")
     subparsers = parser.add_subparsers(dest="command")
@@ -127,6 +170,44 @@ def build_parser() -> argparse.ArgumentParser:
     iar.add_argument("--dry-run", action="store_true")
     iar.add_argument("--limit", type=int, default=None)
     iar.set_defaults(func=cmd_import_airesearch)
+
+    # validate
+    validate_parser = subparsers.add_parser("validate", help="Validate artifacts or repos")
+    validate_sub = validate_parser.add_subparsers(dest="validate_command")
+
+    vq = validate_sub.add_parser("quiz", help="Validate quiz export directory")
+    vq.add_argument("--from", dest="src", required=True, help="Directory containing quiz_*.json")
+    vq.add_argument("--strict", action="store_true")
+    vq.set_defaults(func=cmd_validate_quiz)
+
+    vh = validate_sub.add_parser("harvest", help="Validate harvest DB")
+    vh.add_argument("--db", required=True)
+    vh.set_defaults(func=cmd_validate_harvest)
+
+    vr = validate_sub.add_parser("research", help="Validate AI-Research repo structure")
+    vr.add_argument("--repo", required=True)
+    vr.set_defaults(func=cmd_validate_research)
+
+    # ship
+    ship_parser = subparsers.add_parser("ship", help="One-shot local ship (harvest → export → validate → import → report)")
+    ship_sub = ship_parser.add_subparsers(dest="ship_command")
+
+    local = ship_sub.add_parser("local", help="Run the full local pipeline")
+    local.add_argument("--output-dir", default="./harvest_output")
+    local.add_argument("--max-content", type=int, default=200)
+    local.add_argument("--questions-per-content", type=int, default=5)
+    local.add_argument("--workers", type=int, default=8)
+    local.add_argument("--skip-harvest", action="store_true")
+    local.add_argument("--db", help="Existing harvest.db (required if --skip-harvest)")
+    local.add_argument("--out", dest="export_out", default="./out", help="Export directory for quizzes")
+    local.add_argument("--qm", dest="qm_quizzes_dir", required=True, help="Path to QuizMentor/quizzes directory")
+    local.add_argument("--research", dest="research_repo", required=True, help="Path to AI-Research repo root")
+    local.add_argument("--min-quality", type=float, default=0.6)
+    local.add_argument("--report-dir", default="./reports")
+    local.add_argument("--mode", choices=["copy", "link"], default="copy")
+    local.add_argument("--strict", action="store_true")
+    local.add_argument("--limit", type=int, default=None)
+    local.set_defaults(func=cmd_ship_local)
 
     return parser
 
