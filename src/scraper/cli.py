@@ -16,6 +16,8 @@ from pathlib import Path
 from .harvesters.massive import MassiveHarvester
 from .harvesters.enhanced import EnhancedHarvester
 from .exporters.quizmentor import QuizMentorExporter
+from .importers.quizmentor import QuizMentorImporter
+from .importers.airesearch import AIResearchImporter
 
 
 def cmd_harvest_massive(args) -> int:
@@ -47,6 +49,33 @@ def cmd_export_quizmentor(args) -> int:
     return 0
 
 
+def cmd_import_quizmentor(args) -> int:
+    importer = QuizMentorImporter(source_dir=args.src, target_dir=args.dst, mode=getattr(args, "mode", "copy"), verify=not args.no_verify)
+    summary = importer.run()
+    # Print a compact summary to stdout
+    print(f"Imported {summary['copied']} quiz files → {summary['target_dir']} (issues: {len(summary['issues'])})")
+    return 0
+
+
+def cmd_import_airesearch(args) -> int:
+    importer = AIResearchImporter(
+        db_path=args.db,
+        repo_path=args.repo,
+        edition=args.edition,
+        min_quality=args.min_quality,
+        mapping_file=args.mapping,
+        dry_run=args.dry_run,
+        limit=args.limit,
+    )
+    summary = importer.run()
+    print(
+        "AI-Research import: created={} skipped={} repo={} dry_run={}".format(
+            summary.get("created"), summary.get("skipped"), summary.get("repo"), summary.get("dry_run")
+        )
+    )
+    return 0
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="scraper", description="Modular scraping and question-generation engine")
     subparsers = parser.add_subparsers(dest="command")
@@ -75,6 +104,29 @@ def build_parser() -> argparse.ArgumentParser:
     qm.add_argument("--db", required=True, help="Path to harvest.db")
     qm.add_argument("--out", default="./out", help="Output directory")
     qm.set_defaults(func=cmd_export_quizmentor)
+
+    # importers
+    import_parser = subparsers.add_parser("import", help="Import artifacts into downstream repos")
+    import_sub = import_parser.add_subparsers(dest="import_command")
+
+    # import quizmentor
+    iqm = import_sub.add_parser("quizmentor", help="Copy/link quiz JSON files into QuizMentor repo")
+    iqm.add_argument("--from", dest="src", required=True, help="Directory containing quiz_*.json from exporter")
+    iqm.add_argument("--to", dest="dst", required=True, help="Target quizzes directory (e.g., QuizMentor.ai/quizzes)")
+    iqm.add_argument("--mode", choices=["copy", "link"], default="copy")
+    iqm.add_argument("--no-verify", action="store_true", help="Skip basic schema validation")
+    iqm.set_defaults(func=cmd_import_quizmentor)
+
+    # import AI-Research
+    iar = import_sub.add_parser("research", help="Write AI-Research markdown summaries + update index")
+    iar.add_argument("--db", required=True, help="Path to harvest.db")
+    iar.add_argument("--repo", required=True, help="Path to AI-Research repo root")
+    iar.add_argument("--edition", choices=["PRO", "CE"], default="PRO")
+    iar.add_argument("--min-quality", type=float, default=0.6)
+    iar.add_argument("--mapping", help="Optional JSON tag→category mapping file", default=None)
+    iar.add_argument("--dry-run", action="store_true")
+    iar.add_argument("--limit", type=int, default=None)
+    iar.set_defaults(func=cmd_import_airesearch)
 
     return parser
 
