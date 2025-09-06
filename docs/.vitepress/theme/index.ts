@@ -1,5 +1,6 @@
 import DefaultTheme from 'vitepress/theme'
 import type { Theme } from 'vitepress'
+import { h } from 'vue'
 
 import ContinueButton from './components/ContinueButton.vue'
 import MasteryChecklist from './components/MasteryChecklist.vue'
@@ -9,9 +10,15 @@ import RecentlyUpdated from './components/RecentlyUpdated.vue'
 import MasteryDashboard from './components/MasteryDashboard.vue'
 import GitHubBoard from './components/GitHubBoard.vue'
 import LessonsIndex from './components/LessonsIndex.vue'
+import EditThisPage from './components/EditThisPage.vue'
 
 const theme: Theme = {
   ...DefaultTheme,
+  Layout() {
+    return h(DefaultTheme.Layout, null, {
+      'doc-footer-before': () => h(EditThisPage)
+    })
+  },
   enhanceApp({ app, router }) {
     app.component('ContinueButton', ContinueButton)
     app.component('MasteryChecklist', MasteryChecklist)

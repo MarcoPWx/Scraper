@@ -25,6 +25,8 @@ features:
     details: Cheatsheets, Architecture Gallery, Runbooks, Contracts, Prompts, Roadmap.
   - title: Timestamp Confidence
     details: Last Updated on each page via Git history; daily notes feed.
+  - title: Concepts & Heuristics
+    details: Learn distractors, uniqueness, answer balance, and scoring.
 ---
 
 # Meeting Mode – Quick Links
