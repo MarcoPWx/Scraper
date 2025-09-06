@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="520" viewBox="0 0 960 520">
+  <style>
+    .box { fill:#fff; stroke:#4b5563; stroke-width:1.5; rx:8; ry:8; }
+    .title { font: 600 14px sans-serif; fill:#111827; }
+    .sub { font: 12px sans-serif; fill:#374151; }
+    .arrow { stroke:#6b7280; stroke-width:1.5; fill:none; marker-end:url(#arrow); }
+    .cap { font: 11px sans-serif; fill:#6b7280; }
+  </style>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#6b7280" />
+    </marker>
+  </defs>
+
+  <!-- Row 1: Sources → Harvesters → Storage -->
+  <rect class="box" x="40" y="60" width="160" height="80" />
+  <text class="title" x="60" y="90">Sources</text>
+  <text class="sub" x="60" y="110">Docs, SO, GitHub</text>
+
+  <rect class="box" x="240" y="60" width="180" height="80" />
+  <text class="title" x="260" y="90">Harvesters</text>
+  <text class="sub" x="260" y="110">Massive / Enhanced</text>
+
+  <rect class="box" x="460" y="60" width="160" height="80" />
+  <text class="title" x="480" y="90">SQLite</text>
+  <text class="sub" x="480" y="110">harvest.db</text>
+
+  <path class="arrow" d="M 200 100 H 240" />
+  <path class="arrow" d="M 420 100 H 460" />
+
+  <!-- Row 2: Export / Validate / Import -->
+  <rect class="box" x="660" y="40" width="200" height="60" />
+  <text class="title" x="680" y="70">Export (Quiz)</text>
+
+  <rect class="box" x="660" y="120" width="200" height="60" />
+  <text class="title" x="680" y="150">Validate (Gates)</text>
+
+  <rect class="box" x="660" y="200" width="200" height="60" />
+  <text class="title" x="680" y="230">Import (QM/Research)</text>
+
+  <path class="arrow" d="M 620 100 H 660" />
+  <path class="arrow" d="M 760 100 V 120" />
+  <path class="arrow" d="M 760 180 V 200" />
+
+  <!-- Row 3: Destinations & Report -->
+  <rect class="box" x="60" y="300" width="220" height="80" />
+  <text class="title" x="80" y="330">QuizMentor</text>
+  <text class="sub" x="80" y="350">quizzes/*.json</text>
+
+  <rect class="box" x="320" y="300" width="220" height="80" />
+  <text class="title" x="340" y="330">AI-Research</text>
+  <text class="sub" x="340" y="350">summaries/*.md + index</text>
+
+  <rect class="box" x="580" y="300" width="280" height="80" />
+  <text class="title" x="600" y="330">HTML Report</text>
+  <text class="sub" x="600" y="350">totals, warnings, previews</text>
+
+  <path class="arrow" d="M 760 230 V 340 H 60" />
+  <path class="arrow" d="M 760 230 V 340 H 320" />
+  <path class="arrow" d="M 760 230 V 340 H 580" />
+
+  <!-- Captions -->
+  <text class="cap" x="680" y="20">Strict gates: manifest, minimal schema, sanity stats</text>
+</svg>
+

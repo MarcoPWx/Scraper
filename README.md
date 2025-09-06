@@ -1,5 +1,36 @@
 # Scraper
 
+Executive Summary
+- Local‑first knowledge harvester and compliance packager that runs entirely on your machine.
+- Deterministic heuristics (no LLM required): TF‑IDF, SimHash, Levenshtein ratio, explicit gates.
+- Two adapters out of the box: QuizMentor (quizzes JSON) and AI‑Research (markdown summaries + index).
+- Teaching‑first docs (VitePress) with Meeting Mode, Masterclass lessons, and live roadmap views.
+
+Meeting Mode (fast lookup)
+- A curated hub of one‑pagers and cheatsheets designed for speed, not depth.
+- Each page has a TL;DR, a single diagram, 7–10 talking points, 3–5 tradeoffs, pitfalls, and copy/paste snippets.
+- Search‑first: press `/` to focus search, type a keyword (RAG, SSE, contracts, prompts), hit enter.
+- Where: Home quick links; /lookup/ (one‑pagers); /cheatsheets/ (copy‑ready); /architecture/GALLERY (diagrams).
+
+Masterclass path (00–12)
+- Lessons with narrative + Mermaid diagram + mini‑lab + Grok check + mastery checklist (localStorage)
+- Continue button deep‑links to your last Masterclass lesson
+- See /syllabus
+
+Quick Start (local‑only)
+```bash
+# Install (editable)
+pip install -e /Users/betolbook/Documents/github/Scraper
+
+# Harvest → Export (quiz) → Import (local)
+scraper harvest massive --output-dir /tmp/harvest --max-content 200 --questions-per-content 5 --workers 8 --complete
+scraper export quizmentor --db /tmp/harvest/harvest.db --out ./out
+scraper import quizmentor --from ./out --to /Users/betolbook/Documents/github/QuizMentor.ai/quizzes --mode copy
+
+# Research (dry‑run first)
+scraper import research --db /tmp/harvest/harvest.db --repo /Users/betolbook/Documents/github/AI-Research --edition PRO --min-quality 0.75 --dry-run --limit 10
+```
+
 Product: Local Knowledge Harvester & Compliance Packager
 - Tagline: Privacy‑first harvesting and packaging with legal guardrails, previews, and teaching‑first explainability.
 - Who it serves: content/learning teams, platform/QA, legal/compliance, PMs.
@@ -10,7 +41,6 @@ A modular educational content harvester and question-generation engine (extracte
 - AI-Research (markdown summaries + index updates) — local-only by default
 
 This README is an onboarding manual. It teaches you what the system does, how to run it, the math/algorithms behind it, and all the concepts/abbreviations used. Everything here runs locally without any LLM or cloud services.
-
 
 Who is this for?
 - Engineers who want to harvest dev/tech sources and turn them into multiple-choice questions (MCQs).

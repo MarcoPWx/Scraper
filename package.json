@@ -1,0 +1,16 @@
+{
+  "name": "scraper-docs",
+  "private": true,
+  "version": "0.0.0",
+  "description": "Docs tooling for Scraper VitePress site",
+  "scripts": {
+    "docs:prebuild": "node docs/.vitepress/scripts/generate-recent.js",
+    "docs:dev": "npm run docs:prebuild && npx vitepress dev docs",
+    "docs:build": "npm run docs:prebuild && npx vitepress build docs",
+    "docs:preview": "npx vitepress preview docs"
+  },
+  "devDependencies": {
+    "vitepress": "^1.3.4"
+  }
+}
+

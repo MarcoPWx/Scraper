@@ -1,0 +1,19 @@
+{
+  "quiz_id": "harvest_example_bad",
+  "title": "Example Quiz (Invalid)",
+  "category": "example",
+  "questions": [
+    {
+      "id": "harvest_2",
+      "question": "This has an out of range index",
+      "options": ["A", "B"],
+      "correct_answer": 5
+    },
+    {
+      "id": "harvest_3",
+      "question": "This has missing options",
+      "correct_answer": 0
+    }
+  ]
+}
+

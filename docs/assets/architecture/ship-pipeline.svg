@@ -1,0 +1,54 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="360" viewBox="0 0 960 360">
+  <style>
+    .box { fill:#fff; stroke:#4b5563; stroke-width:1.5; rx:8; ry:8; }
+    .title { font: 600 14px sans-serif; fill:#111827; }
+    .sub { font: 12px sans-serif; fill:#374151; }
+    .arrow { stroke:#6b7280; stroke-width:1.5; fill:none; marker-end:url(#arrow); }
+  </style>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#6b7280" />
+    </marker>
+  </defs>
+
+  <!-- Boxes -->
+  <rect class="box" x="40" y="60" width="140" height="80" />
+  <text class="title" x="60" y="90">Sources</text>
+  <text class="sub" x="60" y="110">docs, SO, GitHub</text>
+
+  <rect class="box" x="220" y="60" width="160" height="80" />
+  <text class="title" x="240" y="90">Harvesters</text>
+  <text class="sub" x="240" y="110">Massive / Enhanced</text>
+
+  <rect class="box" x="420" y="60" width="150" height="80" />
+  <text class="title" x="440" y="90">SQLite</text>
+  <text class="sub" x="440" y="110">harvest.db</text>
+
+  <rect class="box" x="620" y="30" width="150" height="80" />
+  <text class="title" x="640" y="60">Export (Quiz)</text>
+  <text class="sub" x="640" y="80">quizzes/*.json</text>
+
+  <rect class="box" x="620" y="170" width="150" height="80" />
+  <text class="title" x="640" y="200">Import (Research)</text>
+  <text class="sub" x="640" y="220">summaries/*.md</text>
+
+  <rect class="box" x="800" y="30" width="120" height="80" />
+  <text class="title" x="815" y="60">QuizMentor</text>
+  <text class="sub" x="815" y="80">quizzes/</text>
+
+  <rect class="box" x="800" y="170" width="120" height="80" />
+  <text class="title" x="815" y="200">AI-Research</text>
+  <text class="sub" x="815" y="220">docs/research</text>
+
+  <!-- Arrows -->
+  <path class="arrow" d="M 180 100 H 220" />
+  <path class="arrow" d="M 380 100 H 420" />
+  <path class="arrow" d="M 570 70 H 620" />
+  <path class="arrow" d="M 570 130 V 210 H 620" />
+  <path class="arrow" d="M 770 70 H 800" />
+  <path class="arrow" d="M 770 210 H 800" />
+
+  <!-- Title -->
+  <text class="title" x="40" y="28">Ship Pipeline (Harvest → Export → Import)</text>
+</svg>
+

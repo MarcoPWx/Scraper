@@ -1,0 +1,21 @@
+{
+  "quiz_id": "harvest_example",
+  "title": "Example Quiz (Valid)",
+  "category": "example",
+  "difficulty": "mixed",
+  "time_limit": 30,
+  "passing_score": 70,
+  "questions": [
+    {
+      "id": "harvest_1",
+      "question": "What does idempotent mean?",
+      "options": ["Safe to re-run with same outcome", "Runs only once"],
+      "correct_answer": 0,
+      "explanation": "Re-running does not duplicate state.",
+      "difficulty": 2,
+      "tags": ["example"]
+    }
+  ],
+  "metadata": {"source": "fixture", "question_count": 1}
+}
+

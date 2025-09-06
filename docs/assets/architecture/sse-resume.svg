@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="960" height="280" viewBox="0 0 960 280">
+  <style>
+    .box { fill:#fff; stroke:#4b5563; stroke-width:1.5; rx:8; }
+    .title { font: 600 14px sans-serif; fill:#111827; }
+    .sub { font: 12px sans-serif; fill:#374151; }
+    .arrow { stroke:#6b7280; stroke-width:1.5; fill:none; marker-end:url(#arrow); }
+  </style>
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="10" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#6b7280" />
+    </marker>
+  </defs>
+
+  <rect class="box" x="40" y="60" width="200" height="80" />
+  <text class="title" x="60" y="90">SSE Resume</text>
+  <text class="sub" x="60" y="110">Last-Event-ID → resume</text>
+
+  <rect class="box" x="320" y="40" width="240" height="60" />
+  <text class="title" x="340" y="70">Heartbeat</text>
+
+  <rect class="box" x="320" y="140" width="240" height="60" />
+  <text class="title" x="340" y="170">Backoff + Retry</text>
+
+  <rect class="box" x="620" y="60" width="300" height="80" />
+  <text class="title" x="640" y="90">Server State</text>
+  <text class="sub" x="640" y="110">Resume from id or replay window</text>
+
+  <path class="arrow" d="M 240 100 H 320" />
+  <path class="arrow" d="M 560 70 H 620" />
+  <path class="arrow" d="M 560 170 H 620" />
+</svg>
+
