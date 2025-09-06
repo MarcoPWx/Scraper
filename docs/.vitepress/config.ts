@@ -17,6 +17,7 @@ export default defineConfig({
   },
   themeConfig: {
     search: { provider: 'local' },
+    docFooter: { prev: 'Previous', next: 'Next' },
     nav: [
       { text: 'Handbook', link: '/handbook/start-here' },
       { text: 'Meeting Mode', link: '/meeting-mode' },

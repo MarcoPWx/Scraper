@@ -15,6 +15,9 @@ hero:
     - theme: alt
       text: Meeting Mode
       link: /hub/MEETING_MODE
+    - theme: alt
+      text: Concepts & Heuristics
+      link: /concepts/
 features:
   - title: Masterclass Path
     details: Chapters 00–12 with progress tracking and a single Continue button.
