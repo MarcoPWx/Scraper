@@ -114,7 +114,6 @@ scraper import quizmentor --from ./out --to /Users/betolbook/Documents/github/Qu
 # Research (dry‑run first)
 scraper import research --db /tmp/harvest/harvest.db --repo /Users/betolbook/Documents/github/AI-Research --edition PRO --min-quality 0.75 --dry-run --limit 10
 ```
-
 Product: Local Knowledge Harvester & Compliance Packager
 - Tagline: Privacy‑first harvesting and packaging with legal guardrails, previews, and teaching‑first explainability.
 - Who it serves: content/learning teams, platform/QA, legal/compliance, PMs.
