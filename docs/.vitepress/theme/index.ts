@@ -8,6 +8,7 @@ import GitHubIssues from './components/GitHubIssues.vue'
 import RecentlyUpdated from './components/RecentlyUpdated.vue'
 import MasteryDashboard from './components/MasteryDashboard.vue'
 import GitHubBoard from './components/GitHubBoard.vue'
+import LessonsIndex from './components/LessonsIndex.vue'
 
 const theme: Theme = {
   ...DefaultTheme,
@@ -19,6 +20,7 @@ const theme: Theme = {
     app.component('RecentlyUpdated', RecentlyUpdated)
     app.component('MasteryDashboard', MasteryDashboard)
     app.component('GitHubBoard', GitHubBoard)
+    app.component('LessonsIndex', LessonsIndex)
 
     // "Press / to focus search" UX
     if (typeof window !== 'undefined') {

@@ -6,6 +6,11 @@ export default defineConfig({
   lang: 'en-US',
   lastUpdated: true,
   cleanUrls: true,
+  head: [
+    ['meta', { name: 'viewport', content: 'width=device-width, initial-scale=1' }],
+    ['meta', { property: 'og:title', content: 'Scraper – Local Knowledge Harvester' }],
+    ['meta', { property: 'og:description', content: 'Privacy-first harvesting and packaging with explainable heuristics and idempotent adapters.' }]
+  ],
   markdown: {
     lineNumbers: true,
     mermaid: true
@@ -38,6 +43,18 @@ export default defineConfig({
           text: 'Masterclass 00–12',
           items: [
             { text: '00 · Start Here', link: '/lessons/00-intro' },
+            { text: '01 · Harvesters', link: '/lessons/01-harvesters' },
+            { text: '02 · TF‑IDF & Uniqueness', link: '/lessons/02-tfidf-uniqueness' },
+            { text: '03 · Exporters & Manifests', link: '/lessons/03-export-manifest' },
+            { text: '04 · Importers', link: '/lessons/04-importers' },
+            { text: '05 · SimHash Dedupe', link: '/lessons/05-simhash' },
+            { text: '06 · Difficulty & Confidence', link: '/lessons/06-difficulty-confidence' },
+            { text: '07 · Strict Gates', link: '/lessons/07-strict-gates' },
+            { text: '08 · HTML Reports', link: '/lessons/08-html-reports' },
+            { text: '09 · Learning Center', link: '/lessons/09-learning-center' },
+            { text: '10 · Tauri UI', link: '/lessons/10-tauri-ui' },
+            { text: '11 · Packaging & CI', link: '/lessons/11-packaging-ci' },
+            { text: '12 · Extensibility', link: '/lessons/12-extensibility' },
             { text: 'Template (Mini-lab)', link: '/lessons/TEMPLATE_MINILAB' }
           ]
         }

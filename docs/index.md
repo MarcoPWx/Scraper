@@ -12,6 +12,9 @@ hero:
     - theme: alt
       text: Architecture Gallery
       link: /architecture/GALLERY
+    - theme: alt
+      text: Meeting Mode
+      link: /hub/MEETING_MODE
 features:
   - title: Masterclass Path
     details: Chapters 00–12 with progress tracking and a single Continue button.
