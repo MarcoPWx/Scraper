@@ -12,7 +12,9 @@
   
   ![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?style=flat-square&logo=python)
   ![SQLite](https://img.shields.io/badge/SQLite-3-003B57?style=flat-square&logo=sqlite)
-  ![Local Only](https://img.shields.io/badge/Local%20Only-True-blue?style=flat-square)
+  [![CI Status](https://img.shields.io/github/actions/workflow/status/MarcoPWx/Scraper/ci.yml?branch=dev&label=CI&style=flat-square)](https://github.com/MarcoPWx/Scraper/actions)
+  ![Zero LLMs](https://img.shields.io/badge/Zero%20LLMs-True-5e9a00?style=flat-square)
+  ![Idempotent](https://img.shields.io/badge/Idempotent-Safe%20Re--runs-007acc?style=flat-square)
   [![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)](./LICENSE)
   [![Documentation](https://img.shields.io/badge/Docs-Teaching%20First-success?style=flat-square)](./docs)
   
