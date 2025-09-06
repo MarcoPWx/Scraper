@@ -1,16 +1,24 @@
-# Scraper
+<div align="center">
+  
+  # Scraper
+  
+  ### Local‑First Knowledge Harvester & Compliance Packager
+  
+  <p align="center">
+    <strong>Deterministic heuristics, zero LLMs, privacy‑first, fast.</strong>
+  </p>
+  
+  <br/>
+  
+  ![Python](https://img.shields.io/badge/Python-3.10%2B-3776AB?style=flat-square&logo=python)
+  ![SQLite](https://img.shields.io/badge/SQLite-3-003B57?style=flat-square&logo=sqlite)
+  ![Local Only](https://img.shields.io/badge/Local%20Only-True-blue?style=flat-square)
+  [![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)](./LICENSE)
+  [![Documentation](https://img.shields.io/badge/Docs-Teaching%20First-success?style=flat-square)](./docs)
+  
+</div>
 
-Local‑first knowledge harvester and exporter that runs entirely on your machine — inspired by QuizMentor’s polished, learning‑first documentation style.
-
-<p align="center">
-  <b>Deterministic heuristics, zero LLMs, privacy‑first, fast.</b><br/>
-  <a href="#features">Features</a> ·
-  <a href="#quick-start">Quick Start</a> ·
-  <a href="#cli-essentials">CLI Essentials</a> ·
-  <a href="#architecture">Architecture</a> ·
-  <a href="#contributing">Contributing</a> ·
-  <a href="#license">License</a>
-</p>
+<br/>
 
 ---
 
