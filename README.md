@@ -1,12 +1,96 @@
 # Scraper
 
-Executive Summary
-- Local‑first knowledge harvester and compliance packager that runs entirely on your machine.
-- Deterministic heuristics (no LLM required): TF‑IDF, SimHash, Levenshtein ratio, explicit gates.
-- Two adapters out of the box: QuizMentor (quizzes JSON) and AI‑Research (markdown summaries + index).
-- Teaching‑first docs (VitePress) with Meeting Mode, Masterclass lessons, and live roadmap views.
+Local‑first knowledge harvester and exporter that runs entirely on your machine — inspired by QuizMentor’s polished, learning‑first documentation style.
 
-Meeting Mode (fast lookup)
+<p align="center">
+  <b>Deterministic heuristics, zero LLMs, privacy‑first, fast.</b><br/>
+  <a href="#features">Features</a> ·
+  <a href="#quick-start">Quick Start</a> ·
+  <a href="#cli-essentials">CLI Essentials</a> ·
+  <a href="#architecture">Architecture</a> ·
+  <a href="#contributing">Contributing</a> ·
+  <a href="#license">License</a>
+</p>
+
+---
+
+## Overview
+Scraper ingests curated technical sources and produces two kinds of artifacts without any LLMs:
+- Quizzes for QuizMentor (JSON files)
+- Markdown summaries + index updates for AI‑Research
+
+It’s local‑only, deterministic, and idempotent by design. Great for privacy‑sensitive teams that still want strong explainability and fast iteration.
+
+## Features
+- Local‑first: no cloud calls, runs on your machine
+- Deterministic heuristics: TF‑IDF, SimHash, Levenshtein, explicit quality gates
+- Two adapters: QuizMentor (quizzes) and AI‑Research (markdown summaries + index)
+- Teaching‑first: clear CLI, reports, and concepts explained
+- Idempotent importers: safe to re‑run without duplicates
+
+## Quick Start
+
+```bash
+# 1) Install (editable)
+pip install -e .
+
+# 2) Harvest content to SQLite (local‑only)
+scraper harvest massive \
+  --output-dir ./harvest_out \
+  --max-content 200 \
+  --questions-per-content 5 \
+  --workers 8 \
+  --complete
+
+# 3a) Export quizzes for QuizMentor (local files)
+scraper export quizmentor --db ./harvest_out/harvest.db --out ./out
+
+# 3b) Import research summaries into AI‑Research (dry‑run first)
+scraper import research \
+  --db ./harvest_out/harvest.db \
+  --repo /path/to/AI-Research \
+  --edition PRO \
+  --min-quality 0.75 \
+  --dry-run --limit 10
+
+# 3c) Dock quizzes into a local QuizMentor repo
+scraper import quizmentor --from ./out --to /path/to/QuizMentor.ai/quizzes --mode copy
+```
+
+## CLI Essentials
+- Harvest (broad):
+  - `scraper harvest massive --output-dir ./harvest_out --max-content 200 --questions-per-content 5 --workers 8 --complete`
+- Harvest (quality‑focused):
+  - `scraper harvest enhanced --output-dir ./harvest_out`
+- Export (quizzes):
+  - `scraper export quizmentor --db ./harvest_out/harvest.db --out ./out`
+- Import (QuizMentor):
+  - `scraper import quizmentor --from ./out --to /path/to/QuizMentor.ai/quizzes --mode copy`
+- Import (AI‑Research):
+  - `scraper import research --db ./harvest_out/harvest.db --repo /path/to/AI-Research --edition PRO --min-quality 0.75`
+
+## Architecture
+```
+Sources -> Harvesters -> SQLite (harvest.db) -> Export (quizzes) OR Import (research)
+```
+- Export produces: `quizzes/quiz_<category>_harvested.json`, `harvest_index.json`
+- Import (research) produces: `docs/research/summaries/<slug>.md` and updates `docs/research/index.md`
+
+## Project Structure
+- `src/scraper/harvesters` – harvesting engines (massive/enhanced)
+- `src/scraper/exporters` – output formatters and pipelines
+- `src/scraper/importers` – adapters (QuizMentor, AI‑Research)
+- `src/scraper/cli.py` – CLI entry point (`scraper`)
+
+## Contributing
+PRs welcome! Please keep flows local‑first and add a brief rationale for any new gates/thresholds. Consider adding a small sample DB and a CLI flag to reproduce.
+
+## License
+MIT
+
+---
+
+### Meeting Mode (fast lookup)
 - A curated hub of one‑pagers and cheatsheets designed for speed, not depth.
 - Each page has a TL;DR, a single diagram, 7–10 talking points, 3–5 tradeoffs, pitfalls, and copy/paste snippets.
 - Search‑first: press `/` to focus search, type a keyword (RAG, SSE, contracts, prompts), hit enter.
